@@ -1,10 +1,8 @@
 name: Build and Test
-
 on:
   push:
     branches: ["main"]
   workflow_dispatch:
-
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
@@ -14,12 +12,11 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
+          submodules: recursive # This will checkout all submodules recursively
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 20
-
       - name: Cache dependencies
         uses: actions/cache@v4
         with:
@@ -27,18 +24,14 @@ jobs:
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-node-
-
       - run: npm install
         working-directory: ./source
-
       - name: chmod
         run: chmod +x ./quartz/bootstrap-cli.mjs
         working-directory: ./source
-
       - name: Ensure Quartz builds
         run: npx quartz build --bundleInfo
         working-directory: ./source
-
   deploy:
     needs: build-and-test
     permissions:
@@ -53,18 +46,16 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
+          submodules: recursive # Also checkout submodules for the deployment job
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 20
-
       - name: Build Quartz
         run: |
           npm install
           npx quartz build
         working-directory: ./source
-
       - name: Copy raw HTML folder
         run: |
           ls -la
@@ -72,16 +63,13 @@ jobs:
           echo "Contents of public directory:"
           ls -la public/
         working-directory: ./source
-
       - name: Setup GitHub Pages
         uses: actions/configure-pages@v4
-
       - name: Upload GitHub Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: ./source/public
           retention-days: 1
-
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
