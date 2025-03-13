@@ -1,0 +1,3 @@
+[submodule "source/content/content"]
+	path = source/content/content
+	url = git@github.com:tommasoprandin/uni.git
